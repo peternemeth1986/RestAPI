@@ -4,8 +4,26 @@ exports.getPosts = (req, res, next) => {
     res.status(200).json({
         posts:
             [
-                { title: "First post", constent: "This is the first post" },
-                { title: "Second post", constent: "This is the second post" }
+                {
+                    _id: '1',
+                    title: "First post",
+                    constent: "This is the first post",
+                    imageUrl: 'images/78232ffe-a18a-405d-a9db-980fd186b0b2-_predator.jpg',
+                    creator: {
+                        name: 'Peti'
+                    },
+                    createdAt: new Date()
+                },
+                {
+                    _id: '2',
+                    title: "Second post",
+                    constent: "This is the first post",
+                    imageUrl: 'images/78232ffe-a18a-405d-a9db-980fd186b0b2-_predator.jpg',
+                    creator: {
+                        name: 'Peti'
+                    },
+                    createdAt: new Date()
+                }
             ]
     });
 }
