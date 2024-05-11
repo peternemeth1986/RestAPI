@@ -1,5 +1,5 @@
-const { post } = require("../routes/feed");
 const exValidator = require('express-validator');
+const Post = require('../models/post');
 
 exports.getPosts = (req, res, next) => {
     res.status(200).json({
@@ -40,16 +40,22 @@ exports.createPost = (req, res, next) => {
         })
     }
 
-    res.status(201).json(({
-        message: 'Post created successfully.',
-        post: {
-            _id: '3',
-            title: title,
-            content: content,
-            creator: {
-                name: 'Peti'
-            },
-            createdAt: new Date()
-        }
-    }));
+    const post = new Post({
+        title: title,
+        imageUrl: 'images/78232ffe-a18a-405d-a9db-980fd186b0b2-_predator.jpg',
+        content: content,
+        creator: {
+            name: 'Peti'
+        },
+    });
+    post
+        .save()
+        .then(result => {
+            console.log(result);
+            res.status(201).json(({
+                message: 'Post created successfully.',
+                post: result
+            }));
+        })
+        .catch(err => console.log(err));
 }
