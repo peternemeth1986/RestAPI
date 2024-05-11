@@ -58,6 +58,7 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
+        console.log(resData.posts);
         this.setState({
           posts: resData.posts,
           totalPosts: resData.totalItems,
@@ -106,12 +107,22 @@ class Feed extends Component {
       editLoading: true
     });
     // Set up data (with image!)
-    let url = 'URL';
+    let url = 'http://localhost:8080/feed/post';
+    let method = 'POST';
     if (this.state.editPost) {
       url = 'URL';
     }
 
-    fetch(url)
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: postData.title,
+        content: postData.content
+      })
+    })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Creating or editing a post failed!');
@@ -119,6 +130,7 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
+        console.log(resData);
         const post = {
           _id: resData.post._id,
           title: resData.post.title,
@@ -133,7 +145,11 @@ class Feed extends Component {
               p => p._id === prevState.editPost._id
             );
             updatedPosts[postIndex] = post;
-          } else if (prevState.posts.length < 2) {
+            // ezt a részt a 375. fejezetnél vettem ki, mert nem adott a listához 2-nél több posztot
+            // } else if (prevState.posts.length < 2) {
+            //   updatedPosts = prevState.posts.concat(post);
+            // }
+          } else {
             updatedPosts = prevState.posts.concat(post);
           }
           return {

@@ -1,4 +1,5 @@
 const { post } = require("../routes/feed");
+const exValidator = require('express-validator');
 
 exports.getPosts = (req, res, next) => {
     res.status(200).json({
@@ -31,13 +32,24 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
     const title = req.body.title;
     const content = req.body.content;
+    const errors = exValidator.validationResult(req);
+
+    if (!errors.isEmpty()) {
+        res.status(422).json({
+            message: 'Incorrect data added. Please check the correct length or format.'
+        })
+    }
 
     res.status(201).json(({
         message: 'Post created successfully.',
         post: {
-            id: new Date().toISOString(),
+            _id: '3',
             title: title,
-            content: content
+            content: content,
+            creator: {
+                name: 'Peti'
+            },
+            createdAt: new Date()
         }
     }));
 }

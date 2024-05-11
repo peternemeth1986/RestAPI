@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
+const MONGODB_URI = process.env.MONGODB_URI_RESTAPI;
 const feedRoutes = require('./routes/feed')
 
 const app = express();
+const PORT = 8080;
+const hostname = "localhost";
 
 app.use(bodyParser.json());
 
@@ -17,10 +21,20 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
-app.listen(8080, () => {
-    console.log('Server started.');
-})
+mongoose
+    .connect(MONGODB_URI)
+    .then(() => {
+        console.log('Connected to MongoDB');
+        app.listen(8080, () => {
+            console.log(`Server is running on ${hostname}:${PORT}`);
+        });
 
+    })
+    .catch(err => {
+        console.log(err);
+    })
+
+// CodePen - Ez arra van, hogy frontend nélkül egyszerűen tudjuk tesztelni a RestAPT-t
 // HTML
 
 // <button id="get">Get Posts</button>
