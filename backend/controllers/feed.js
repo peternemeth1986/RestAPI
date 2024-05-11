@@ -57,5 +57,10 @@ exports.createPost = (req, res, next) => {
                 post: result
             }));
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 }
