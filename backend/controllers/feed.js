@@ -27,10 +27,15 @@ exports.createPost = (req, res, next) => {
             message: 'Incorrect data added. Please check the correct length or format.'
         })
     }
-
+    if (!req.file) {
+        const error = new Error('No image uploaded.');
+        error.statusCode = 422;
+        throw error;
+    }
+    const imageUrl = req.file.path;
     const post = new Post({
         title: title,
-        imageUrl: 'images/78232ffe-a18a-405d-a9db-980fd186b0b2-_predator.jpg',
+        imageUrl: imageUrl.replace(/\\/g, "/"),
         content: content,
         creator: {
             name: 'Peti'
