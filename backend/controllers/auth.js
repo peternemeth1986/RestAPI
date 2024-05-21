@@ -33,3 +33,31 @@ exports.signup = (req, res, next) => {
             next(err);
         });
 };
+
+exports.login = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    User.findOne({ email: email })
+        .then(user => {
+            if (!user) {
+                const error = new Error('Invalid email.');
+                error.statusCode(401);
+                throw error;
+            }
+            return bcrypt.compare(password, user.password);
+        })
+        .then(isEqual => {
+            if (!isEqual) {
+                const error = new Error('Wrong password.');
+                error.statusCode(401);
+                throw error;
+            }
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
+}
