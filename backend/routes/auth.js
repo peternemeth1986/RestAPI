@@ -10,7 +10,6 @@ router.put('/signup', [
     exValidator
         .check('email')
         .isEmail()
-        .normalizeEmail()
         .trim()
         .withMessage('Enter valid email.')
         .custom((value) => {
