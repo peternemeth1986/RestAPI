@@ -3,6 +3,7 @@ const Post = require('../models/post');
 const fs = require('fs');
 const path = require('path');
 const User = require('../models/user');
+const user = require('../models/user');
 
 exports.getPosts = (req, res, next) => {
     const currentPage = req.query.page || 1;
@@ -177,6 +178,13 @@ exports.deletePost = (req, res, next) => {
             }
             clearImage(post.imageUrl);
             return Post.findByIdAndDelete(postId);
+        })
+        .then(result => {
+            return User.findById(req.userId);
+        })
+        .then(user => {
+            user.posts.pull(postId);
+            return user.save();
         })
         .then(result => {
             console.log('Post deleted: ', result);
