@@ -22,7 +22,11 @@ class Feed extends Component {
   };
 
   componentDidMount() {
-    fetch('URL')
+    fetch('http://localhost:8080/auth/status', {
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
+    })
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch user status.');
@@ -50,7 +54,7 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    fetch(`http://localhost:8080/feed/posts?page=${page}`, {
+    fetch('http://localhost:8080/feed/posts?page=' + page, {
       headers: {
         Authorization: 'Bearer ' + this.props.token
       }
@@ -62,13 +66,12 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
-        console.log(resData.posts);
         this.setState({
           posts: resData.posts.map(post => {
             return {
               ...post,
               imagePath: post.imageUrl
-            }
+            };
           }),
           totalPosts: resData.totalItems,
           postsLoading: false
@@ -79,7 +82,16 @@ class Feed extends Component {
 
   statusUpdateHandler = event => {
     event.preventDefault();
-    fetch('URL')
+    fetch('http://localhost:8080/auth/status', {
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer ' + this.props.token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        status: this.state.status
+      })
+    })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Can't update status!");
@@ -115,16 +127,14 @@ class Feed extends Component {
     this.setState({
       editLoading: true
     });
-
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
     formData.append('image', postData.image);
-
     let url = 'http://localhost:8080/feed/post';
     let method = 'POST';
     if (this.state.editPost) {
-      url = `http://localhost:8080/feed/post/${this.state.editPost._id}`;
+      url = 'http://localhost:8080/feed/post/' + this.state.editPost._id;
       method = 'PUT';
     }
 
@@ -157,11 +167,7 @@ class Feed extends Component {
               p => p._id === prevState.editPost._id
             );
             updatedPosts[postIndex] = post;
-            // ezt a részt a 375. fejezetnél vettem ki, mert nem adott a listához 2-nél több posztot
-            // } else if (prevState.posts.length < 2) {
-            //   updatedPosts = prevState.posts.concat(post);
-            // }
-          } else {
+          } else if (prevState.posts.length < 2) {
             updatedPosts = prevState.posts.concat(post);
           }
           return {
@@ -189,11 +195,11 @@ class Feed extends Component {
 
   deletePostHandler = postId => {
     this.setState({ postsLoading: true });
-    fetch(`http://localhost:8080/feed/post/${postId}`, {
+    fetch('http://localhost:8080/feed/post/' + postId, {
+      method: 'DELETE',
       headers: {
         Authorization: 'Bearer ' + this.props.token
-      },
-      method: 'DELETE'
+      }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
