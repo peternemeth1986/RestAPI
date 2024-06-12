@@ -5,9 +5,11 @@ const path = require('path');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
+const { graphqlHTTP } = require('express-graphql');
+const graphqlSchema = require('./graphql/schema');
+const graphqlResolver = require('./graphql/resolvers');
+
 const MONGODB_URI = process.env.MONGODB_URI_RESTAPI;
-const feedRoutes = require('./routes/feed');
-const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = 8080;
@@ -46,8 +48,20 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
+app.use('/graphql', graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver,
+    // graphiql: true,
+    // customFormatErrorFn(err) {
+    //     if (!err.originalError) {
+    //         return err;
+    //     }
+    //     const data = err.originalError.data;
+    //     const message = err.message || 'An error occurred.';
+    //     const code = err.originalError.code || 500;
+    //     return { message: message, status: code, data: data };
+    // }
+}));
 
 app.use((error, req, res, next) => {
     console.log(error);
@@ -64,44 +78,12 @@ mongoose
     .connect(MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB');
-        const server = app.listen(8080, () => {
+        app.listen(8080, () => {
             console.log(`Server is running on ${hostname}:${PORT}`);
         });
-        const io = require('./socket').init(server);
-        io.on('connection', socket => {
-            console.log('Client connected');
-        });
-
     })
     .catch(err => {
         console.log(err);
     })
 
 
-// JS
-
-// const getButton = document.getElementById('get');
-// const postButton = document.getElementById('post');
-
-// getButton.addEventListener('click', () => {
-//   fetch('http://localhost:8080/feed/posts')
-//     .then(res => res.json())
-//     .then(resData => console.log(resData))
-//     .catch(err => console.log(err));
-// });
-
-// postButton.addEventListener('click', () => {
-//   fetch('http://localhost:8080/feed/post', {
-//     method: 'POST',
-//     body: JSON.stringify({
-//       title: 'Third post',
-//       content: 'This is the third post'
-//     }),
-//     headers: {
-//       'Content-Type': 'application/json'
-//     }
-//   })
-//     .then(res => res.json())
-//     .then(resData => console.log(resData))
-//     .catch(err => console.log(err));
-// });
